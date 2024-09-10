@@ -1,5 +1,5 @@
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 from api.models import Livro
 from api.serializers import LivroSerializer
 
@@ -7,3 +7,10 @@ class LivroViewSet(viewsets.ModelViewSet):
     queryset = Livro.objects.all()
     serializer_class = LivroSerializer
 
+    def get_permissions(self):
+        """Customiza as permissões por método"""
+        if self.action in ['list', 'retrieve']:  # Se for um GET (listar ou ver um livro), é público
+            permission_classes = [AllowAny]
+        else:  # Para qualquer outra ação (POST, PUT, DELETE, etc.), exige autenticação
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
