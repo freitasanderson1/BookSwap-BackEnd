@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from api.models import Perfil
 from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,4 +19,8 @@ class UserSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+        perfil = Perfil(
+            usuario = user,
+        )
+        perfil.save()
         return user
