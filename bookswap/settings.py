@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-4z1a90mk6@#embe6-)^!v5rbbvmy3bcgv&euhni6(p58l#iom0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.15.10','127.0.0.1','0.0.0.0','10.10.31.132','10.90.8.67']
+ALLOWED_HOSTS = ['192.168.15.10','127.0.0.1','0.0.0.0','10.10.31.132','10.90.8.67','bookswap-backend-production.up.railway.app']
 
 
 # Application definition
