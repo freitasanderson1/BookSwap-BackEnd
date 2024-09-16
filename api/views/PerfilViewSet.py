@@ -4,7 +4,7 @@ from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer
 from rest_framework.permissions import IsAuthenticated
 
 class PerfilViewSet(viewsets.ModelViewSet):
-    queryset = Perfil.objects.all()  # Adiciona o queryset diretamente aqui
+    queryset = Perfil.objects.all()  # Define um queryset genérico
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -16,5 +16,12 @@ class PerfilViewSet(viewsets.ModelViewSet):
             return PerfilCreateUpdateSerializer
         return PerfilSerializer
 
+    def get_object(self):
+        # Retorna o perfil do usuário autenticado
+        queryset = self.get_queryset()
+        return queryset.get()
+
     def perform_create(self, serializer):
-        serializer.save(usuario=self.request.user)  # Associa o perfil ao usuário logado
+        # Associa o perfil ao usuário logado ao criar um novo perfil
+        serializer.save(usuario=self.request.user)
+

@@ -4,7 +4,7 @@ from api.models import Livro
 from api.serializers import LivroSerializer
 
 class LivroViewSet(viewsets.ModelViewSet):
-    queryset = Livro.objects.all()
+    queryset = Livro.objects.all().order_by('-criado_em')
     serializer_class = LivroSerializer
 
     def get_permissions(self):
