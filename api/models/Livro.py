@@ -21,6 +21,8 @@ class Livro(models.Model):
         choices=CONDICAO_CHOICES,
         default='usado'
     )
+    criado_em = models.DateTimeField(auto_now_add=True)  
+    atualizado_em = models.DateTimeField(auto_now=True) 
     
     def __str__(self):
         return f"{self.titulo} - {self.descricao}"
