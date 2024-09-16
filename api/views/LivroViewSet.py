@@ -14,3 +14,6 @@ class LivroViewSet(viewsets.ModelViewSet):
         else:  # Para qualquer outra ação (POST, PUT, DELETE, etc.), exige autenticação
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+    def perform_create(self, serializer):
+        serializer.save(dono=self.request.user)
