@@ -1,7 +1,8 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import get_object_or_404
 from api.models import Perfil
 from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer
-from rest_framework.permissions import IsAuthenticated
 
 class PerfilViewSet(viewsets.ModelViewSet):
     queryset = Perfil.objects.all()  # Define um queryset genérico
@@ -12,16 +13,17 @@ class PerfilViewSet(viewsets.ModelViewSet):
         return Perfil.objects.filter(usuario=self.request.user)
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update']:
+        # Usa um serializer diferente para create, update, partial_update
+        if self.action in ['update', 'partial_update']:
             return PerfilCreateUpdateSerializer
         return PerfilSerializer
 
     def get_object(self):
-        # Retorna o perfil do usuário autenticado
+        # Usa get_object_or_404 para retornar o perfil do usuário autenticado
         queryset = self.get_queryset()
-        return queryset.get()
+        # Garante que existe apenas um perfil por usuário
+        return get_object_or_404(queryset)
 
-    def perform_create(self, serializer):
-        # Associa o perfil ao usuário logado ao criar um novo perfil
-        serializer.save(usuario=self.request.user)
-
+    def perform_update(self, serializer):
+        # Lida com a atualização, incluindo a possibilidade de alterar a senha
+        serializer.save()
