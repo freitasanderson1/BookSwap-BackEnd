@@ -1,11 +1,13 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import viewsets
+from rest_framework import viewsets,filters
 from api.models import Livro
 from api.serializers import LivroSerializer
 
 class LivroViewSet(viewsets.ModelViewSet):
     queryset = Livro.objects.all().order_by('-criado_em')
     serializer_class = LivroSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['titulo']
 
     def get_permissions(self):
         """Customiza as permissões por método"""
