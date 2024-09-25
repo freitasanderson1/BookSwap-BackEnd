@@ -1,11 +1,13 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from api.models import Livro
 from api.serializers import LivroSerializer
 
 class LivroViewSet(viewsets.ModelViewSet):
     queryset = Livro.objects.all().order_by('-criado_em')
     serializer_class = LivroSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['titulo']
 
     def get_permissions(self):
         """Customiza as permissões por método"""
@@ -15,5 +17,13 @@ class LivroViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    def get_queryset(self):
+        # Se um parâmetro "meus_livros" for passado, filtramos para livros do usuário
+        meus_livros = self.request.query_params.get('meus_livros', None)
+        if meus_livros and self.request.user.is_authenticated:
+            return Livro.objects.filter(dono=self.request.user).order_by('-criado_em')
+        return super().get_queryset()
+
     def perform_create(self, serializer):
+        # Associa o livro criado ao usuário autenticado
         serializer.save(dono=self.request.user)
