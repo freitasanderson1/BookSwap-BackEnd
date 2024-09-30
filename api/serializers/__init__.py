@@ -1,0 +1,4 @@
+from api.serializers.LivroSerializer import LivroSerializer
+from api.serializers.UserSerializer import UserSerializer
+from api.serializers.PerfilSerializer import PerfilSerializer
+from api.serializers.PerfilSerializer import PerfilCreateUpdateSerializer
