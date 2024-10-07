@@ -23,6 +23,7 @@ class Livro(models.Model):
     )
     criado_em = models.DateTimeField(auto_now_add=True)  
     atualizado_em = models.DateTimeField(auto_now=True) 
+    resenha = models.TextField(null=True, blank=True)
     
     def __str__(self):
         return f"{self.titulo} - {self.descricao}"
