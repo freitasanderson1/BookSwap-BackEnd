@@ -26,13 +26,13 @@ SECRET_KEY = 'django-insecure-4z1a90mk6@#embe6-)^!v5rbbvmy3bcgv&euhni6(p58l#iom0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.15.118','192.168.15.4','192.168.15.10','0f73-200-129-179-189.ngrok-free.app','0.0.0.0','10.10.31.132','10.90.8.67','bookswap-backend-production.up.railway.app']
+ALLOWED_HOSTS = ['10.10.28.102','0.0.0.0']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'rest_framework',
-    'materialdash',
-    'materialdash.admin',
+    # 'materialdash',
+    # 'materialdash.admin',
     'django_filters'
     
 ]
@@ -86,19 +86,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bookswap.wsgi.application'
 
 
-Database
-https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bookswap',
-        'USER': 'root',
-        'PASSWORD': 'ps2024bk',
-        'HOST': 'db',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'bookswap',
+#         'USER': 'root',
+#         'PASSWORD': 'ps2024bk',
+#         'HOST': 'db',
+#         'PORT': '5432',
+#     }
+# }
 
 DATABASES = {
     'default': {
