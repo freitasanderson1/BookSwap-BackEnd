@@ -1,5 +1,8 @@
 from rest_framework import viewsets
+from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from api.models import Perfil
 from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer
@@ -29,3 +32,27 @@ class PerfilViewSet(viewsets.ModelViewSet):
 
         # Save the profile and the image
         serializer.save()
+        
+    #seguir perfil
+    @action(detail=True, methods=['POST'],permission_classes=[IsAuthenticated])
+    def seguir(self,request,pk=None):
+        perfil_a_seguir = get_object_or_404(Perfil,pk=pk)
+        perfil_autenticado = request.user.perfil
+        
+        if perfil_autenticado.esta_seguindo(perfil_a_seguir):
+            return Response({'detail':'Voce ja esta seguindo este perfil.'},status=status.HTTP_400_BAD_REQUEST)
+        
+        perfil_autenticado.seguir(perfil_a_seguir)
+        return Response({'detail':'Agora voce esta seguindo este perfil.'},status=status.HTTP_200_OK)
+    
+    #unfollow perfil
+    @action(detail=True,methods=['DELETE'],permission_classes=[IsAuthenticated])
+    def deixar_de_seguir(self,request,pk=None):
+        perfil_para_deixar = get_object_or_404(Perfil,pk=pk)
+        perfil_autenticado = request.user.perfil
+        
+        if not perfil_autenticado.esta_seguindo(perfil_para_deixar):
+            return Response({'detail':'Voce nao esta seguindo este perfil.'},status=status.HTTP_400_BAD_REQUEST)
+
+        perfil_autenticado.deixar_de_seguir(perfil_para_deixar)
+        return Response({'detail':'Voce deixou de seguir este perfil.'},status=status.HTTP_200_OK)
