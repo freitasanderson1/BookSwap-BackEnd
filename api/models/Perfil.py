@@ -12,6 +12,15 @@ class Perfil(models.Model):
     class Meta:
         verbose_name = 'Perfil'
         verbose_name_plural = 'Perfis'
+        
+    def seguir(self,perfil):
+        self.seguindo.add(perfil)
+        
+    def deixar_de_seguir(self,perfil):
+        self.seguindo.remove(perfil)
+        
+    def esta_seguindo(self,perfil):
+        return self.seguindo.filter(id=perfil.id).exists()
     
     
     
