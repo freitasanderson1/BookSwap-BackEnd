@@ -6,11 +6,12 @@ from api.serializers import UserSerializer
 # Serializer para o Perfil
 class PerfilSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(read_only=True)  # Inclui o serializer do usuário
-    seguindo = serializers.StringRelatedField(many=True, read_only=True)  # Exibe o nome do perfil que está sendo seguido
+    seguindo = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Perfil
         fields = ['id', 'usuario', 'image', 'seguindo']
+
 
 # Serializer para criar/atualizar perfil
 class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
@@ -32,7 +33,7 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
 
         # Atualizando os campos do usuário
         user = instance.usuario  # Pega a instância do usuário associada ao perfil
-        
+
         # Atualizando o nome, sobrenome, e-mail e nome de usuário
         user.first_name = validated_data.get('first_name', user.first_name)
         user.last_name = validated_data.get('last_name', user.last_name)
@@ -49,3 +50,15 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+# Serializer para busca de perfis
+class PerfilSearchSerializer(serializers.ModelSerializer):
+    # Inclui os campos de usuário associados ao perfil
+    first_name = serializers.CharField(source='usuario.first_name', read_only=True)
+    last_name = serializers.CharField(source='usuario.last_name', read_only=True)
+    username = serializers.CharField(source='usuario.username', read_only=True)
+
+    class Meta:
+        model = Perfil
+        fields = ['id', 'first_name', 'last_name', 'username', 'image']  # Inclui os campos necessários para a busca

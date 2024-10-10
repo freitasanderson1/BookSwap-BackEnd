@@ -1,58 +1,80 @@
-from rest_framework import viewsets
-from rest_framework import status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from django.db.models import Q  # Para consultas complexas (OR)
 from api.models import Perfil
-from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer
+from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer
 
 class PerfilViewSet(viewsets.ModelViewSet):
-    queryset = Perfil.objects.all()  # Define a generic queryset
-    permission_classes = [IsAuthenticated]
+    queryset = Perfil.objects.all()  # Define o queryset padrão
+
+    def get_permissions(self):
+        # Permitir busca sem autenticação, exigir autenticação para o restante
+        if self.action == 'list':
+            self.permission_classes = [AllowAny]
+        else:
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()
 
     def get_serializer_class(self):
-        # Use a different serializer for create, update, partial_update
+        # Use um serializer diferente para 'update', 'partial_update' e para busca
+        if self.action == 'list' and self.request.query_params.get('search'):
+            return PerfilSearchSerializer
         if self.action in ['update', 'partial_update']:
             return PerfilCreateUpdateSerializer
         return PerfilSerializer
 
+    def get_queryset(self):
+        queryset = Perfil.objects.all()
+        search_query = self.request.query_params.get('search', None)
+
+        # Se houver uma query de busca, filtra pelo nome, sobrenome ou username
+        if search_query:
+            queryset = queryset.filter(
+                Q(usuario__first_name__icontains=search_query) |
+                Q(usuario__last_name__icontains=search_query) |
+                Q(usuario__username__icontains=search_query)
+            )
+        return queryset
+
     def get_object(self):
-        # Retrieve profile by the ID provided in the URL, if available
-        if self.kwargs.get('pk'):  # Check if 'pk' is in the URL
+        # Retorna o perfil com base no ID fornecido na URL, se disponível
+        if self.kwargs.get('pk'):
             return get_object_or_404(Perfil, pk=self.kwargs['pk'])
-        # If no 'pk' is provided, return the profile of the authenticated user
+        # Se nenhum 'pk' for fornecido, retorna o perfil do usuário autenticado
         queryset = self.get_queryset().filter(usuario=self.request.user)
         return get_object_or_404(queryset)
 
     def perform_update(self, serializer):
-        # Log to verify what is being sent
+        # Log para verificar o que está sendo enviado
         print("Request FILES: ", self.request.FILES)
         print("Request DATA: ", self.request.data)
 
-        # Save the profile and the image
+        # Salvar o perfil e a imagem
         serializer.save()
-        
-    #seguir perfil
-    @action(detail=True, methods=['POST'],permission_classes=[IsAuthenticated])
-    def seguir(self,request,pk=None):
-        perfil_a_seguir = get_object_or_404(Perfil,pk=pk)
+
+    # Seguir perfil
+    @action(detail=True, methods=['POST'], permission_classes=[IsAuthenticated])
+    def seguir(self, request, pk=None):
+        perfil_a_seguir = get_object_or_404(Perfil, pk=pk)
         perfil_autenticado = request.user.perfil
-        
+
         if perfil_autenticado.esta_seguindo(perfil_a_seguir):
-            return Response({'detail':'Voce ja esta seguindo este perfil.'},status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({'detail': 'Você já está seguindo este perfil.'}, status=status.HTTP_400_BAD_REQUEST)
+
         perfil_autenticado.seguir(perfil_a_seguir)
-        return Response({'detail':'Agora voce esta seguindo este perfil.'},status=status.HTTP_200_OK)
-    
-    #unfollow perfil
-    @action(detail=True,methods=['DELETE'],permission_classes=[IsAuthenticated])
-    def deixar_de_seguir(self,request,pk=None):
-        perfil_para_deixar = get_object_or_404(Perfil,pk=pk)
+        return Response({'detail': 'Agora você está seguindo este perfil.'}, status=status.HTTP_200_OK)
+
+    # Deixar de seguir perfil
+    @action(detail=True, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def deixar_de_seguir(self, request, pk=None):
+        perfil_para_deixar = get_object_or_404(Perfil, pk=pk)
         perfil_autenticado = request.user.perfil
-        
+
         if not perfil_autenticado.esta_seguindo(perfil_para_deixar):
-            return Response({'detail':'Voce nao esta seguindo este perfil.'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Você não está seguindo este perfil.'}, status=status.HTTP_400_BAD_REQUEST)
 
         perfil_autenticado.deixar_de_seguir(perfil_para_deixar)
-        return Response({'detail':'Voce deixou de seguir este perfil.'},status=status.HTTP_200_OK)
+        return Response({'detail': 'Você deixou de seguir este perfil.'}, status=status.HTTP_200_OK)
