@@ -6,7 +6,7 @@ from api.serializers import UserSerializer
 # Serializer para o Perfil
 class PerfilSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(read_only=True)  # Inclui o serializer do usuário
-    seguindo = serializers.StringRelatedField(many=True, read_only=True)
+    seguindo = serializers.PrimaryKeyRelatedField(many=True, queryset=Perfil.objects.all())
 
     class Meta:
         model = Perfil

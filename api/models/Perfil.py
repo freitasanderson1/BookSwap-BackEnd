@@ -15,6 +15,8 @@ class Perfil(models.Model):
         
     def seguir(self,perfil):
         self.seguindo.add(perfil)
+        if self.id == perfil.id:
+            raise ValueError("Voce nao pode seguir a si mesmo")
         
     def deixar_de_seguir(self,perfil):
         self.seguindo.remove(perfil)
