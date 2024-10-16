@@ -1,6 +1,8 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import viewsets, filters
-from api.models import Livro
+from rest_framework import viewsets, filters, status
+from api.models import Livro, Perfil
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from api.serializers import LivroSerializer
 from api.filters.LivroFilter import LivroFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -30,3 +32,15 @@ class LivroViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Associa o livro criado ao usuário autenticado
         serializer.save(dono=self.request.user)
+
+    @action(detail=True, methods=['post'], url_path='curtir', url_name='curtir')
+    def curtir_livro(self, request, pk=None):
+        livro = self.get_object()
+        perfil = Perfil.objects.get(usuario=request.user)
+
+        if perfil in livro.curtidas.all():
+            livro.curtidas.remove(perfil)
+            return Response({'status': 'Você descurtiu este livro.'}, status=status.HTTP_200_OK)
+        else:
+            livro.curtidas.add(perfil)
+            return Response({'status': 'Você curtiu este livro.'}, status=status.HTTP_200_OK)

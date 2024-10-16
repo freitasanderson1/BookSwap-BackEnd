@@ -24,6 +24,7 @@ class Livro(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)  
     atualizado_em = models.DateTimeField(auto_now=True) 
     resenha = models.TextField(null=True, blank=True)
+    curtidas = models.ManyToManyField('Perfil', related_name='livros_curtidos', blank=True)  # Campo de curtidas
     
     def __str__(self):
         return f"{self.titulo} - {self.descricao}"
