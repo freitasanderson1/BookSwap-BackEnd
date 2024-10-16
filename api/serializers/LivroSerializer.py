@@ -7,4 +7,4 @@ class LivroSerializer(serializers.ModelSerializer):
     perfil_id = serializers.IntegerField(source='dono.perfil.id', read_only=True)  # Access the related Perfil's ID
     class Meta:
         model = Livro
-        fields = ['url','id','titulo','autor','paginas','descricao','dataPublicacao','editora','capa','dono','perfil_id','condicao','genero','resenha']
+        fields = ['url','id','titulo','autor','paginas','descricao','dataPublicacao','editora','capa','dono','perfil_id','condicao','genero','resenha','curtidas']
