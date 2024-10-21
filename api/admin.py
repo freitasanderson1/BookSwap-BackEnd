@@ -10,4 +10,4 @@ class LivroAdmin(admin.ModelAdmin):
 class PerfilAdmin(admin.ModelAdmin):
     icon_name = 'person_pin'
     search_fields = ['usuario']
-    autocomplete_fields = ['seguindo']
+    autocomplete_fields = ['seguindo','seguidores']
