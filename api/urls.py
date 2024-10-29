@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LivroViewSet, UserViewSet, PerfilViewSet, ComentarioViewSet  
+from .views import LivroViewSet, UserViewSet, PerfilViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -11,7 +11,6 @@ router = DefaultRouter()
 router.register(r'livro', LivroViewSet)
 router.register(r'usuario', UserViewSet)
 router.register(r'perfil', PerfilViewSet)
-router.register(r'comentario', ComentarioViewSet)  
 
 # Definição das URLs
 urlpatterns = [
