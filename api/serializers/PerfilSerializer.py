@@ -10,7 +10,7 @@ class PerfilSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfil
-        fields = ['id', 'usuario', 'image', 'seguindo']
+        fields = ['id', 'usuario', 'image', 'seguindo','seguidores','criado_em']
 
 
 # Serializer para criar/atualizar perfil
