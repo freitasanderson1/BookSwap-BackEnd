@@ -2,3 +2,4 @@
 from .LivroSerializer import LivroSerializer
 from .UserSerializer import UserSerializer
 from .PerfilSerializer import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer  # Adiciona o PerfilSearchSerializer para busca de perfis
+from .ComentarioSerializer import ComentarioSerializer
