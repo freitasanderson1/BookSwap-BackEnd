@@ -6,6 +6,7 @@ CONDICAO_CHOICES = [
     ('seminovo', 'Seminovo'),
     ('usado', 'Usado'),
 ]
+
 class Livro(models.Model):
     titulo = models.CharField(max_length=256)
     autor = models.CharField(max_length=256)
@@ -14,21 +15,22 @@ class Livro(models.Model):
     dataPublicacao = models.DateField()
     editora = models.CharField(max_length=256)
     genero = models.CharField(max_length=256)
-    capa = models.ImageField(upload_to='capas/',blank=True,null=True)
-    dono = models.ForeignKey(User,on_delete=models.CASCADE,related_name='livros')
+    capa = models.ImageField(upload_to='capas/', blank=True, null=True)
+    dono = models.ForeignKey(User, on_delete=models.CASCADE, related_name='livros')
     condicao = models.CharField(
         max_length=10,
         choices=CONDICAO_CHOICES,
         default='usado'
     )
-    criado_em = models.DateTimeField(auto_now_add=True)  
-    atualizado_em = models.DateTimeField(auto_now=True) 
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
     resenha = models.TextField(null=True, blank=True)
     curtidas = models.ManyToManyField('Perfil', related_name='livros_curtidos', blank=True)  # Campo de curtidas
-    
+    disponibilidade = models.BooleanField(default=True)  # Campo para controlar se o livro está disponível para troca
+
     def __str__(self):
         return f"{self.titulo} - {self.descricao}"
-    
+
     class Meta:
         verbose_name = 'Livro'
         verbose_name_plural = 'Livros'

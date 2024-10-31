@@ -4,8 +4,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q  # Para consultas complexas (OR)
-from api.models import Perfil
+from api.models import Perfil, Troca  # Certifique-se de importar 'Troca' junto com 'Perfil'
 from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer
+from api.serializers import TrocaSerializer  # Certifique-se de importar o TrocaSerializer
 
 class PerfilViewSet(viewsets.ModelViewSet):
     queryset = Perfil.objects.all()  # Define o queryset padrão
@@ -78,3 +79,10 @@ class PerfilViewSet(viewsets.ModelViewSet):
 
         perfil_autenticado.deixar_de_seguir(perfil_para_deixar)
         return Response({'detail': 'Você deixou de seguir este perfil.'}, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated], url_path='historico-trocas')
+    def historico_trocas(self, request, pk=None):
+        perfil = self.get_object()
+        trocas = Troca.objects.filter(solicitante=perfil) | Troca.objects.filter(destinatario=perfil)
+        serializer = TrocaSerializer(trocas, many=True)
+        return Response(serializer.data)

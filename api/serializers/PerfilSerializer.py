@@ -7,13 +7,11 @@ from api.serializers import UserSerializer
 class PerfilSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(read_only=True)  # Inclui o serializer do usuário
     seguindo = serializers.PrimaryKeyRelatedField(many=True, queryset=Perfil.objects.all())
+    pontuacao_total = serializers.IntegerField(read_only=True)  # Inclui a pontuação total para gamificação
 
     class Meta:
         model = Perfil
-        fields = ['id', 'usuario', 'image', 'seguindo','seguidores','criado_em']
-
-
-# Serializer para criar/atualizar perfil
+        fields = ['id', 'usuario', 'image', 'seguindo', 'seguidores', 'criado_em', 'pontuacao_total']
 class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)  # Campo para escrita da senha, opcional
     first_name = serializers.CharField(write_only=True, required=False)  # Campos para o nome
@@ -50,15 +48,13 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
-
-# Serializer para busca de perfis
 class PerfilSearchSerializer(serializers.ModelSerializer):
     # Inclui os campos de usuário associados ao perfil
     first_name = serializers.CharField(source='usuario.first_name', read_only=True)
     last_name = serializers.CharField(source='usuario.last_name', read_only=True)
     username = serializers.CharField(source='usuario.username', read_only=True)
+    pontuacao_total = serializers.IntegerField(read_only=True)  # Mostrar pontuação na busca
 
     class Meta:
         model = Perfil
-        fields = ['id', 'first_name', 'last_name', 'username', 'image']  # Inclui os campos necessários para a busca
+        fields = ['id', 'first_name', 'last_name', 'username', 'image', 'pontuacao_total']
