@@ -19,9 +19,10 @@ from api.serializers.PerfilSerializer import PerfilSerializer, PerfilCreateUpdat
 from api.serializers import TrocaSerializer
 
 class PerfilViewSet(viewsets.ModelViewSet):
-    queryset = Perfil.objects.all()
+    queryset = Perfil.objects.all()  # Define o queryset padrão
 
     def get_permissions(self):
+        # Permitir busca sem autenticação, exigir autenticação para o restante
         if self.action == 'list':
             self.permission_classes = [AllowAny]
         else:
@@ -29,6 +30,7 @@ class PerfilViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_serializer_class(self):
+        # Use um serializer diferente para 'update', 'partial_update' e para busca
         if self.action == 'list' and self.request.query_params.get('search'):
             return PerfilSearchSerializer
         if self.action in ['update', 'partial_update']:
@@ -39,6 +41,7 @@ class PerfilViewSet(viewsets.ModelViewSet):
         queryset = Perfil.objects.all()
         search_query = self.request.query_params.get('search', None)
 
+        # Se houver uma query de busca, filtra pelo nome, sobrenome ou username
         if search_query:
             queryset = queryset.filter(
                 Q(usuario__first_name__icontains=search_query) |
@@ -46,6 +49,22 @@ class PerfilViewSet(viewsets.ModelViewSet):
                 Q(usuario__username__icontains=search_query)
             )
         return queryset
+
+    def get_object(self):
+        # Retorna o perfil com base no ID fornecido na URL, se disponível
+        if self.kwargs.get('pk'):
+            return get_object_or_404(Perfil, pk=self.kwargs['pk'])
+        # Se nenhum 'pk' for fornecido, retorna o perfil do usuário autenticado
+        queryset = self.get_queryset().filter(usuario=self.request.user)
+        return get_object_or_404(queryset)
+
+    def perform_update(self, serializer):
+        # Log para verificar o que está sendo enviado
+        print("Request FILES: ", self.request.FILES)
+        print("Request DATA: ", self.request.data)
+
+        # Salvar o perfil e a imagem
+        serializer.save()
 
     # Seguir perfil
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='seguir')
