@@ -25,15 +25,20 @@ class LivroViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         meus_livros = self.request.query_params.get('meus_livros', None)
         usuario = self.request.query_params.get('usuario', None)
+        perfil = self.request.query_params.get('perfil', None)
         disponivel = self.request.query_params.get('disponivel', None)
 
         # Filtra os livros do próprio usuário autenticado
         if meus_livros and self.request.user.is_authenticated:
             return Livro.objects.filter(dono=self.request.user).order_by('-criado_em')
 
-        # Filtra os livros de um usuário específico, se o parâmetro 'usuario' for fornecido
+        # Filtra os livros de um usuário específico (pelo `User`), se o parâmetro 'usuario' for fornecido
         if usuario:
             return Livro.objects.filter(dono__id=usuario).order_by('-criado_em')
+
+        # Filtra os livros de um perfil específico, se o parâmetro 'perfil' for fornecido
+        if perfil:
+            return Livro.objects.filter(dono__perfil__id=perfil).order_by('-criado_em')
 
         # Filtra os livros disponíveis, se solicitado
         if disponivel:

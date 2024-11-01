@@ -7,7 +7,7 @@ class Perfil(models.Model):
     seguindo = models.ManyToManyField('Perfil', blank=True, related_name='Seguindo')
     seguidores = models.ManyToManyField('Perfil', blank=True, related_name='Seguidores')
     criado_em = models.DateTimeField(auto_now_add=True)
-    pontuacao_total = models.PositiveIntegerField(default=0)  # Campo para armazenar a pontuação acumulada
+    pontuacao_total = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.usuario.get_full_name()}"
@@ -30,6 +30,5 @@ class Perfil(models.Model):
         return self.seguindo.filter(id=perfil.id).exists()
 
     def adicionar_pontuacao(self, pontos):
-        """ Adiciona pontos à pontuação total do usuário """
         self.pontuacao_total += pontos
         self.save()
