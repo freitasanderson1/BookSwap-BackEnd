@@ -18,7 +18,7 @@ class Perfil(models.Model):
 
     def seguir(self, perfil):
         if self.id == perfil.id:
-            raise ValueError("Você não pode seguir a si mesmo")
+            raise ValueError("Você não pode seguir a si mesmo.")
         self.seguindo.add(perfil)
         perfil.seguidores.add(self)
 

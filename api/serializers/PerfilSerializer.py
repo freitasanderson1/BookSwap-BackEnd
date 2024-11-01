@@ -1,27 +1,39 @@
 from rest_framework import serializers
 from api.models import Perfil
 from django.contrib.auth.models import User
-from api.serializers import UserSerializer
+from api.serializers import UserSerializer  # Importa o UserSerializer centralizado que funcionou anteriormente
 
-# Serializer para o Perfil
+# Serializer principal para o Perfil
+
 class PerfilSerializer(serializers.ModelSerializer):
-    usuario = UserSerializer(read_only=True)  # Inclui o serializer do usuário
+    usuario = UserSerializer(read_only=True)
     seguindo = serializers.PrimaryKeyRelatedField(many=True, queryset=Perfil.objects.all())
-    pontuacao_total = serializers.IntegerField(read_only=True)  # Inclui a pontuação total para gamificação
+    pontuacao_total = serializers.IntegerField(read_only=True)
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = Perfil
-        fields = ['id', 'usuario', 'image', 'seguindo', 'seguidores', 'criado_em', 'pontuacao_total']
+        fields = ['id', 'usuario', 'image', 'seguindo', 'seguidores', 'criado_em', 'pontuacao_total', 'is_following']
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            perfil_autenticado = getattr(request.user, 'perfil', None)
+            if perfil_autenticado:
+                return perfil_autenticado.esta_seguindo(obj)
+        return False
+
+# Serializer para criação/atualização de perfil
 class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False)  # Campo para escrita da senha, opcional
-    first_name = serializers.CharField(write_only=True, required=False)  # Campos para o nome
+    password = serializers.CharField(write_only=True, required=False)  
+    first_name = serializers.CharField(write_only=True, required=False)
     last_name = serializers.CharField(write_only=True, required=False)
     email = serializers.EmailField(write_only=True, required=False)
     username = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Perfil
-        fields = ['id', 'image', 'password', 'first_name', 'last_name', 'email', 'username']  # Inclui os campos do usuário
+        fields = ['id', 'image', 'password', 'first_name', 'last_name', 'email', 'username']
 
     def update(self, instance, validated_data):
         # Atualizando a imagem se presente
@@ -30,7 +42,7 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
             instance.image = image
 
         # Atualizando os campos do usuário
-        user = instance.usuario  # Pega a instância do usuário associada ao perfil
+        user = instance.usuario
 
         # Atualizando o nome, sobrenome, e-mail e nome de usuário
         user.first_name = validated_data.get('first_name', user.first_name)
@@ -41,19 +53,21 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
         # Atualizando a senha, se fornecida
         password = validated_data.get('password', None)
         if password:
-            user.set_password(password)  # Gera o hash da nova senha
+            user.set_password(password)
 
         # Salvando o usuário e o perfil
         user.save()
         instance.save()
 
         return instance
+
+
+# Serializer para busca de perfis
 class PerfilSearchSerializer(serializers.ModelSerializer):
-    # Inclui os campos de usuário associados ao perfil
     first_name = serializers.CharField(source='usuario.first_name', read_only=True)
     last_name = serializers.CharField(source='usuario.last_name', read_only=True)
     username = serializers.CharField(source='usuario.username', read_only=True)
-    pontuacao_total = serializers.IntegerField(read_only=True)  # Mostrar pontuação na busca
+    pontuacao_total = serializers.IntegerField(read_only=True)  # Inclui a pontuação total para visualização na busca
 
     class Meta:
         model = Perfil
