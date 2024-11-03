@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from api.models import Perfil
-from django.contrib.auth.models import User
-from api.serializers import UserSerializer  # Importa o UserSerializer centralizado que funcionou anteriormente
+from django.db.models import Q
+from api.models import Perfil, Troca
+from api.serializers.TrocaSerializer import TrocaSerializer
+from api.serializers.UserSerializer import UserSerializer
 
-# Serializer principal para o Perfil
 class PerfilSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(read_only=True)
     seguindo = serializers.PrimaryKeyRelatedField(many=True, queryset=Perfil.objects.all())
@@ -23,9 +23,9 @@ class PerfilSerializer(serializers.ModelSerializer):
                 return perfil_autenticado.esta_seguindo(obj)
         return False
 
-# Serializer para criação/atualização de perfil
+# Serializer para criação e atualização do perfil com campos adicionais para o usuário
 class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False)  
+    password = serializers.CharField(write_only=True, required=False)
     first_name = serializers.CharField(write_only=True, required=False)
     last_name = serializers.CharField(write_only=True, required=False)
     email = serializers.EmailField(write_only=True, required=False)
@@ -36,32 +36,35 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'password', 'first_name', 'last_name', 'email', 'username']
 
     def update(self, instance, validated_data):
+        # Atualiza a imagem, se fornecida
         image = validated_data.get('image', None)
         if image:
             instance.image = image
 
+        # Atualiza campos do usuário associado
         user = instance.usuario
         user.first_name = validated_data.get('first_name', user.first_name)
         user.last_name = validated_data.get('last_name', user.last_name)
         user.email = validated_data.get('email', user.email)
         user.username = validated_data.get('username', user.username)
 
+        # Atualiza a senha, se fornecida
         password = validated_data.get('password', None)
         if password:
             user.set_password(password)
 
+        # Salva o usuário e o perfil atualizado
         user.save()
         instance.save()
-
         return instance
 
-# Serializer para busca de perfis
+
+# Serializer para busca de perfis com campos específicos
 class PerfilSearchSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='usuario.first_name', read_only=True)
     last_name = serializers.CharField(source='usuario.last_name', read_only=True)
     username = serializers.CharField(source='usuario.username', read_only=True)
-    pontuacao_total = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Perfil
-        fields = ['id', 'first_name', 'last_name', 'username', 'image', 'pontuacao_total']
+        fields = ['id', 'first_name', 'last_name', 'username', 'image']

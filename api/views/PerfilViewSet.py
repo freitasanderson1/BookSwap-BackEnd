@@ -1,3 +1,4 @@
+# views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -5,8 +6,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
 from api.models import Perfil, Troca
-from api.serializers.PerfilSerializer import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer
-from api.serializers import TrocaSerializer
+from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer, TrocaSerializer
 
 class PerfilViewSet(viewsets.ModelViewSet):
     queryset = Perfil.objects.all()
@@ -70,9 +70,17 @@ class PerfilViewSet(viewsets.ModelViewSet):
         perfil_autenticado.deixar_de_seguir(perfil_para_deixar)
         return Response({'detail': 'Você deixou de seguir este perfil.'}, status=status.HTTP_200_OK)
 
+    # Histórico de trocas com gamificação (avaliação e pontuação)
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated], url_path='historico-trocas')
     def historico_trocas(self, request, pk=None):
-        perfil = self.get_object()
-        trocas = Troca.objects.filter(Q(solicitante=perfil) | Q(destinatario=perfil))
+        perfil = get_object_or_404(Perfil, pk=pk)
+        trocas = Troca.objects.filter(Q(solicitante=perfil) | Q(recebedor=perfil))
         serializer = TrocaSerializer(trocas, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Nova ação para buscar perfil pelo user_id
+    @action(detail=False, methods=['get'], url_path='by-user/(?P<user_id>[^/.]+)', permission_classes=[AllowAny])
+    def get_profile_by_user_id(self, request, user_id=None):
+        perfil = get_object_or_404(Perfil, usuario_id=user_id)
+        serializer = self.get_serializer(perfil)
+        return Response(serializer.data, status=status.HTTP_200_OK)

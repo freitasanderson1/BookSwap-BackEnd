@@ -7,7 +7,7 @@ class Perfil(models.Model):
     seguindo = models.ManyToManyField('Perfil', blank=True, related_name='Seguindo')
     seguidores = models.ManyToManyField('Perfil', blank=True, related_name='Seguidores')
     criado_em = models.DateTimeField(auto_now_add=True)
-    pontuacao_total = models.PositiveIntegerField(default=0)
+    pontuacao = models.IntegerField(default=0)  # Campo para armazenar a pontuação do usuário
 
     def __str__(self):
         return f"{self.usuario.get_full_name()}"
@@ -18,7 +18,7 @@ class Perfil(models.Model):
 
     def seguir(self, perfil):
         if self.id == perfil.id:
-            raise ValueError("Você não pode seguir a si mesmo.")
+            raise ValueError("Você não pode seguir a si mesmo")
         self.seguindo.add(perfil)
         perfil.seguidores.add(self)
 
@@ -29,6 +29,9 @@ class Perfil(models.Model):
     def esta_seguindo(self, perfil):
         return self.seguindo.filter(id=perfil.id).exists()
 
-    def adicionar_pontuacao(self, pontos):
-        self.pontuacao_total += pontos
+    def atualizar_pontuacao(self, avaliacao):
+        """
+        Método para atualizar a pontuação do perfil com base na avaliação recebida.
+        """
+        self.pontuacao += avaliacao
         self.save()
