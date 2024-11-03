@@ -1,0 +1,29 @@
+#!/bin/bash
+cleanBuild() {
+	echo "Removendo arquivos compilados de 'static/'"
+	rm -rf static/*
+}
+
+case $1 in
+    build)
+        echo "Construindo aplicativo..."
+
+        # Para comprimir os estáticos deve-se desabilitar o modo debug.
+        export DEBUG_MODE=False
+
+        cleanBuild
+
+        echo "Coletando arquivos estáticos..."
+        python manage.py collectstatic -c --no-input
+
+    ;;
+    *)
+        echo "Iniciando Web Chat"
+        
+        export DJANGO_SETTINGS_MODULE=bookswap.settings
+
+        python manage.py collectstatic -c --no-input
+        
+        uvicorn bookswap.asgi:application --reload --host 0.0.0.0 --port 8000
+    ;;
+esac
