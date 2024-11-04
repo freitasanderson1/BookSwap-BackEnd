@@ -12,7 +12,7 @@ class PerfilSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfil
-        fields = ['id', 'usuario', 'image', 'seguindo', 'seguidores', 'criado_em', 'pontuacao_total', 'is_following']
+        fields = ['id', 'usuario', 'image', 'seguindo', 'seguidores', 'criado_em', 'pontuacao_total', 'is_following','pontuacao']
 
     def get_is_following(self, obj):
         request = self.context.get('request')
@@ -32,7 +32,7 @@ class PerfilCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfil
-        fields = ['id', 'image', 'password', 'first_name', 'last_name', 'email', 'username']
+        fields = ['id', 'image', 'password', 'first_name', 'last_name', 'email', 'username','pontuacao']
 
     def update(self, instance, validated_data):
         # Atualiza a imagem, se fornecida
@@ -66,4 +66,4 @@ class PerfilSearchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfil
-        fields = ['id', 'first_name', 'last_name', 'username', 'image']
+        fields = ['id', 'first_name', 'last_name', 'username', 'image','pontuacao']

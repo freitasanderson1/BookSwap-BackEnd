@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LivroViewSet, UserViewSet, PerfilViewSet, ComentarioViewSet, GetUserChatMessages,ChatRequestViewSet, GetUserUsernameView
+from .views import LivroViewSet, UserViewSet, PerfilViewSet, ComentarioViewSet, GetUserChatMessages,ChatRequestViewSet, GetUserUsernameView, ConcluirTrocaView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -20,4 +20,5 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Login com JWT
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh do token JWT
     path('get-username/', GetUserUsernameView.as_view(), name='get-username'),
+    path('concluir-troca/<uuid:troca_id>/', ConcluirTrocaView.as_view(), name='concluir-troca'),
 ]

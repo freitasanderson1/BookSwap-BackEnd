@@ -29,9 +29,9 @@ class Perfil(models.Model):
     def esta_seguindo(self, perfil):
         return self.seguindo.filter(id=perfil.id).exists()
 
-    def atualizar_pontuacao(self, avaliacao):
+    def atualizar_pontuacao(self):
         """
         Método para atualizar a pontuação do perfil com base na avaliação recebida.
         """
-        self.pontuacao += avaliacao
+        self.pontuacao += 1
         self.save()
