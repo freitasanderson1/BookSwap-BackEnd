@@ -25,11 +25,11 @@ class Livro(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
     resenha = models.TextField(null=True, blank=True)
-    curtidas = models.ManyToManyField('Perfil', related_name='livros_curtidos', blank=True)
+    curtidas = models.ManyToManyField('Perfil', related_name='livros_curtidos', blank=True)  # Campo de curtidas
     disponibilidade = models.BooleanField(default=True)
     media_avaliacoes = models.FloatField(default=0.0)  # Campo para armazenar a média das avaliações do livro
     total_avaliacoes = models.PositiveIntegerField(default=0)  # Campo para armazenar o número total de avaliações
-
+    
     def __str__(self):
         return f"{self.titulo} - {self.descricao}"
 
