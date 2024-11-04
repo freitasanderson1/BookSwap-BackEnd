@@ -94,6 +94,11 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'bookswap.wsgi.application'
 ASGI_APPLICATION = 'bookswap.asgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
