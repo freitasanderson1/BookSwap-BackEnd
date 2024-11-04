@@ -4,3 +4,4 @@ from api.models.Comentario import Comentario
 from api.models.Chat import Chat
 from api.models.ChatMessages import ChatMessages
 from api.models.ChatRequest import ChatRequest
+from api.models.Troca import Troca

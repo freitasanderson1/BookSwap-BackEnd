@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from api.serializers import LivroSerializer
 from api.filters.LivroFilter import LivroFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 
 class LivroViewSet(viewsets.ModelViewSet):
     queryset = Livro.objects.all().order_by('-criado_em')
@@ -33,6 +34,13 @@ class LivroViewSet(viewsets.ModelViewSet):
         # Associa o livro criado ao usuário autenticado
         serializer.save(dono=self.request.user)
 
+    def get_object(self):
+        # Garante que apenas o dono pode editar ou deletar o livro
+        obj = super().get_object()
+        if self.action in ['update', 'partial_update', 'destroy'] and obj.dono != self.request.user:
+            raise PermissionDenied("Você não tem permissão para editar este livro.")
+        return obj
+
     @action(detail=True, methods=['post'], url_path='curtir', url_name='curtir')
     def curtir_livro(self, request, pk=None):
         livro = self.get_object()
@@ -44,3 +52,18 @@ class LivroViewSet(viewsets.ModelViewSet):
         else:
             livro.curtidas.add(perfil)
             return Response({'status': 'Você curtiu este livro.'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated])
+    def editar(self, request, pk=None):
+        """
+        Endpoint para editar um livro.
+        """
+        livro = get_object_or_404(Livro, pk=pk)
+        if livro.dono != request.user:
+            return Response({'detail': 'Você não tem permissão para editar este livro.'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.get_serializer(livro, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

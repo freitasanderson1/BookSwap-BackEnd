@@ -17,7 +17,7 @@ class ChatRequestSerializer(serializers.ModelSerializer):
         if livro_id:
             try:
                 livro = Livro.objects.get(id=livro_id)
-                if not livro.disponivel:
+                if not livro.disponibilidade:
                     raise serializers.ValidationError("Este livro não está disponível para troca.")
             except Livro.DoesNotExist:
                 raise serializers.ValidationError("O livro especificado não existe.")

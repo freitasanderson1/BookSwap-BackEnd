@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LivroViewSet, UserViewSet, PerfilViewSet, ComentarioViewSet, GetUserChatMessages, ChatRequestViewSet, GetUserUsernameView
+from .views import LivroViewSet, UserViewSet, PerfilViewSet, ComentarioViewSet, GetUserChatMessages,ChatRequestViewSet, GetUserUsernameView, TrocaViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -14,6 +14,8 @@ router.register(r'perfil', PerfilViewSet)
 router.register(r'comentario', ComentarioViewSet)  
 router.register(r'api/UserMessages',GetUserChatMessages, basename='GetUserMessages')
 router.register(r'chat-requests', ChatRequestViewSet, basename='chat-request')  # Registre o ChatRequestViewSet
+router.register(r'troca', TrocaViewSet)
+
 # Definição das URLs
 urlpatterns = [
     path('', include(router.urls)),  # Inclui as rotas dos ViewSets
