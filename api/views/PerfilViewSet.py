@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
 from api.models import Perfil, Troca
-from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer, TrocaSerializer
+from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer
 
 class PerfilViewSet(viewsets.ModelViewSet):
     queryset = Perfil.objects.all()
