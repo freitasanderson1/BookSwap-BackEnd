@@ -14,6 +14,7 @@ class ChatRequest(models.Model):
   mensagem = models.TextField(u'Conteúdo da Mensagem de solicitação', max_length=300, null=False, blank=False, default=' ')
   
   aceito = models.BooleanField(verbose_name='Aceitou a solicitação?', default=False)
+  trocaFeita = models.BooleanField(verbose_name='Troca foi realizada?', default=False)
 
   dataCriacao = models.DateTimeField('Data de Criação', auto_now_add=True, null=True)
 

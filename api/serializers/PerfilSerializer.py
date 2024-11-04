@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Q
-from api.models import Perfil, Troca
-from api.serializers.TrocaSerializer import TrocaSerializer
+from api.models import Perfil
 from api.serializers.UserSerializer import UserSerializer
 
 class PerfilSerializer(serializers.ModelSerializer):
