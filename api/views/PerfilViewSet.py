@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q
-from api.models import Perfil, Troca
+from api.models import Perfil
 from api.serializers import PerfilSerializer, PerfilCreateUpdateSerializer, PerfilSearchSerializer
 
 class PerfilViewSet(viewsets.ModelViewSet):
