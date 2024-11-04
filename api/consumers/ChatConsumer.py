@@ -3,7 +3,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from urllib.parse import parse_qs
 from asgiref.sync import sync_to_async
 
-
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.username = parse_qs(self.scope['query_string'].decode('utf8')).get('username')[-1]
@@ -25,44 +24,59 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
+        from api.models import Chat, ChatMessages  # Importação movida para dentro da função
         from django.contrib.auth.models import User
+        
         text_data_json = json.loads(text_data)
-        from api.models import Chat, ChatMessages
-        # print(f"Chat: {text_data_json.get('chat')}")
-        chat = await Chat.objects.aget(id=text_data_json.get('chat'))
-        user = await User.objects.aget(username=self.username)
+        chat_id = text_data_json.get('chat')
         message = text_data_json.get('message')
 
-        # print(f'Mensagem: {message} de {self.username} para o CHAT ID:{chat.id}')
+        if not chat_id:
+            await self.send(text_data=json.dumps({
+                'error': 'ID do chat não fornecido.'
+            }))
+            return
+
+        try:
+            chat = await Chat.objects.aget(id=chat_id)
+        except Chat.DoesNotExist:
+            await self.send(text_data=json.dumps({
+                'error': 'Chat não encontrado.'
+            }))
+            return
+
+        user = await User.objects.aget(username=self.username)
 
         novaMensagem = ChatMessages(
             chat=chat,
             quemEnviou=user,
             conteudo=message
         )
-        await sync_to_async(novaMensagem.save)()  
+        await sync_to_async(novaMensagem.save)()
 
-        
-        for usuario in await sync_to_async(list)(chat.usuarios.all()):  
+        for usuario in await sync_to_async(list)(chat.usuarios.all()):
             await self.channel_layer.group_send(
                 f'chat_{usuario.username}',
                 {
                     'type': 'chat_message',
+                    'chatId': str(chat.id),  # Inclui o chatId nas mensagens enviadas
                     'message': message,
-                    'time': novaMensagem.dataEnvio.strftime("%Y-%m-%d %H:%M:%S") ,
-                    'sender_username': self.username,  
+                    'time': novaMensagem.dataEnvio.strftime("%Y-%m-%d %H:%M:%S"),
+                    'sender_username': self.username,
                 }
             )
             if usuario != user:
                 await sync_to_async(novaMensagem.quemRecebeu.add)(usuario)
 
     async def chat_message(self, event):
+        chat_id = event['chatId']  # Recebe o chatId
         message = event['message']
-        sender_username = event['sender_username']  
-        time = event['time']  
-        # print(f'Teste Sender: {event}')
+        sender_username = event['sender_username']
+        time = event['time']
+
         await self.send(text_data=json.dumps({
+            'chatId': chat_id,  # Inclui o chatId na mensagem enviada
             'message': message,
             'sender_username': sender_username,
-            'time': time,  
+            'time': time,
         }))

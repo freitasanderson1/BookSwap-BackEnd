@@ -23,17 +23,15 @@ class ChatRequest(models.Model):
     ordering = ['dataCriacao']
 
   def save(self, *args, **kwargs):
-    if self.aceito and not self.chat:
-      novoChat = Chat()
-      novoChat.id=uuid.uuid4()
-      novoChat.save()
+      if self.aceito and not self.chat:
+          novoChat = Chat.objects.create()  # Cria e salva a instância de Chat
+          novoChat.usuarios.add(self.usuario)
+          novoChat.usuarios.add(self.usuarioDestino)
 
-      novoChat.usuarios.add(self.usuario)
-      novoChat.usuarios.add(self.usuarioDestino)
+          # Atribui a instância de Chat à solicitação
+          self.chat = novoChat
 
-      self.chat = novoChat.id
-      
-    super(ChatRequest, self).save()
-    
+      super(ChatRequest, self).save(*args, **kwargs)
+          
   def __str__(self):
     return f'Solicitação de conversa entre {self.usuario.username} e {self.usuarioDestino.username}'

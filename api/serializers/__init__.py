@@ -5,3 +5,4 @@ from .PerfilSerializer import PerfilSerializer, PerfilCreateUpdateSerializer, Pe
 from .ComentarioSerializer import ComentarioSerializer
 from .ChatMessagesSerializer import ChatMessagesSerializer
 from .ChatSerializer import ChatSerializer
+from .ChatRequestSerializer import ChatRequestSerializer
